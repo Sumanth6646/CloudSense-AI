@@ -1,23 +1,46 @@
+import Layout from "../../components/layout/Layout";
+import DashboardCard from "../../components/cards/DashboardCard";
+
 function Dashboard() {
   return (
-    <div
-      style={{
-        backgroundColor: "#F8FAFC",
-        minHeight: "100vh",
-        padding: "40px",
-        fontFamily: "Arial",
-      }}
-    >
-      <h1>☁ CloudSense AI</h1>
+    <Layout>
+      <h1>☁ CloudSense AI Dashboard</h1>
 
-      <h2>Welcome, Sai 👋</h2>
+      <p>Welcome to your AI-powered cloud cost optimisation platform.</p>
 
-      <p>AI-Powered Cloud Cost Dashboard & Anomaly Detection System</p>
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          marginTop: "30px",
+          flexWrap: "wrap",
+        }}
+      >
+        <DashboardCard
+          title="Total Cloud Cost"
+          value="£18,420"
+          colour="#2563EB"
+        />
 
-      <hr />
+        <DashboardCard
+          title="Monthly Growth"
+          value="+12%"
+          colour="#22C55E"
+        />
 
-      <h3>Dashboard Coming Soon 🚀</h3>
-    </div>
+        <DashboardCard
+          title="Active Anomalies"
+          value="7"
+          colour="#EF4444"
+        />
+
+        <DashboardCard
+          title="Estimated Savings"
+          value="£2,850"
+          colour="#F59E0B"
+        />
+      </div>
+    </Layout>
   );
 }
 
