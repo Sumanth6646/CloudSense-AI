@@ -1,5 +1,5 @@
 # CloudSense AI
-npm
+
 Intelligent Cloud Cost Dashboard and Anomaly Detection System.
 
 ## Features
