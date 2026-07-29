@@ -1,13 +1,16 @@
 import Layout from "../../components/layout/Layout";
 import DashboardCard from "../../components/cards/DashboardCard";
+import LineChartCard from "../../components/charts/LineChartCard";
+import PieChartCard from "../../components/charts/PieChartCard";
 
 function Dashboard() {
   return (
     <Layout>
+      {/* Dashboard Header */}
       <h1>☁ CloudSense AI Dashboard</h1>
-
       <p>Welcome to your AI-powered cloud cost optimisation platform.</p>
 
+      {/* KPI Cards */}
       <div
         style={{
           display: "flex",
@@ -39,6 +42,19 @@ function Dashboard() {
           value="£2,850"
           colour="#F59E0B"
         />
+      </div>
+
+      {/* Charts Section */}
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          marginTop: "30px",
+          flexWrap: "wrap",
+        }}
+      >
+        <LineChartCard />
+        <PieChartCard />
       </div>
     </Layout>
   );
