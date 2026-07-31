@@ -1,36 +1,17 @@
 import Layout from "../../components/layout/Layout";
+import DashboardHeader from "../../components/header/DashboardHeader";
 import DashboardCard from "../../components/cards/DashboardCard";
 import LineChartCard from "../../components/charts/LineChartCard";
 import PieChartCard from "../../components/charts/PieChartCard";
 import AIInsights from "../../components/insights/AIInsights";
+import AnomaliesTable from "../../components/tables/AnomaliesTable";
 import Recommendations from "../../components/recommendations/Recommendations";
 
 function Dashboard() {
   return (
     <Layout>
-      {/* Dashboard Header */}
-      <div style={{ marginBottom: "30px" }}>
-        <h1
-          style={{
-            fontSize: "32px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-          }}
-        >
-          ☁ CloudSense AI Dashboard
-        </h1>
+      <DashboardHeader />
 
-        <p
-          style={{
-            color: "#64748B",
-            fontSize: "16px",
-          }}
-        >
-          Welcome to your AI-powered Cloud Cost Optimisation Platform.
-        </p>
-      </div>
-
-      {/* KPI Cards */}
       <div
         style={{
           display: "flex",
@@ -64,7 +45,6 @@ function Dashboard() {
         />
       </div>
 
-      {/* Charts */}
       <div
         style={{
           display: "flex",
@@ -77,10 +57,10 @@ function Dashboard() {
         <PieChartCard />
       </div>
 
-      {/* AI Insights */}
       <AIInsights />
 
-      {/* AI Recommendations */}
+      <AnomaliesTable />
+
       <Recommendations />
     </Layout>
   );
