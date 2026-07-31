@@ -3,29 +3,17 @@ import Topbar from "./Topbar";
 
 function Layout({ children }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="flex min-h-screen bg-slate-100">
+      {/* Sidebar */}
       <Sidebar />
 
-      <div
-        style={{
-          flex: 1,
-          backgroundColor: "#F3F4F6",
-        }}
-      >
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col">
         <Topbar />
 
-        <div
-          style={{
-            padding: "25px",
-          }}
-        >
+        <main className="flex-1 p-8 overflow-y-auto">
           {children}
-        </div>
+        </main>
       </div>
     </div>
   );
