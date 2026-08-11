@@ -1,18 +1,26 @@
-import Sidebar from "./Sidebar";
+import { useState } from "react";
+import Sidebar from "./sidebar";
 import Topbar from "./Topbar";
 
 function Layout({ children }) {
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar
+        mobileOpen={mobileSidebarOpen}
+        onClose={() => setMobileSidebarOpen(false)}
+      />
 
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col">
-        <Topbar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Topbar
+          onMenuClick={() => setMobileSidebarOpen(true)}
+        />
 
-        <main className="flex-1 p-8 overflow-y-auto">
-          {children}
+        <main className="flex-1 overflow-x-hidden p-4 md:p-6 lg:p-8">
+          <div className="mx-auto w-full max-w-[1600px]">
+            {children}
+          </div>
         </main>
       </div>
     </div>
