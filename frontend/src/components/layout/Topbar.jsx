@@ -1,83 +1,111 @@
-import {
-  Menu,
-  Search,
-  Bell,
-  ChevronDown,
-} from "lucide-react";
+import { useLocation } from "react-router-dom";
 
-function Topbar({ onMenuClick }) {
+function Topbar() {
+  const location = useLocation();
+
+  const pageInfo = {
+    "/dashboard": {
+      title: "Cloud Overview",
+      subtitle: "Monitor your cloud spending and performance",
+    },
+
+    "/billing": {
+      title: "Billing Import",
+      subtitle: "Import and validate your cloud billing data",
+    },
+
+    "/analytics": {
+      title: "Cost Analytics",
+      subtitle: "Analyze your cloud spending patterns",
+    },
+
+    "/anomalies": {
+      title: "Anomaly Detection",
+      subtitle: "Identify unusual cloud spending behavior",
+    },
+
+    "/forecast": {
+      title: "Cost Forecast",
+      subtitle: "Predict future cloud spending",
+    },
+
+    "/recommendations": {
+      title: "AI Recommendations",
+      subtitle: "Discover opportunities to reduce cloud costs",
+    },
+
+    "/reports": {
+      title: "Reports",
+      subtitle: "Generate and review cloud cost reports",
+    },
+
+    "/ai-assistant": {
+      title: "AI Assistant",
+      subtitle: "Ask questions about your cloud spending",
+    },
+
+    "/settings": {
+      title: "Settings",
+      subtitle: "Manage your CloudSense AI preferences",
+    },
+  };
+
+  const currentPage = pageInfo[location.pathname] || pageInfo["/dashboard"];
+
   return (
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur md:px-6 lg:px-8">
-      {/* Left */}
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={onMenuClick}
-          className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:hidden"
-          aria-label="Open navigation"
-        >
-          <Menu size={22} />
-        </button>
+    <header className="h-20 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between px-8">
+      
+      {/* Left Side */}
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800">
+          {currentPage.title}
+        </h2>
 
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 md:text-xl">
-            Cloud Overview
-          </h2>
-
-          <p className="hidden text-sm text-slate-500 sm:block">
-            Monitor your cloud spending and performance
-          </p>
-        </div>
+        <p className="text-sm text-slate-500 mt-1">
+          {currentPage.subtitle}
+        </p>
       </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-2 md:gap-5">
+      {/* Right Side */}
+      <div className="flex items-center gap-6">
+
         {/* Search */}
-        <div className="hidden items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 md:flex">
-          <Search size={17} className="text-slate-400" />
+        <div className="hidden md:flex items-center w-64 h-11 bg-slate-50 border border-slate-200 rounded-xl px-4">
+          <span className="text-slate-400 mr-2">
+            🔍
+          </span>
 
           <input
             type="text"
             placeholder="Search..."
-            className="ml-2 w-36 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400 lg:w-48"
+            className="bg-transparent outline-none text-sm text-slate-700 w-full"
           />
 
-          <span className="ml-3 hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 lg:block">
+          <span className="text-xs text-slate-400 border border-slate-200 rounded px-1.5 py-0.5">
             /
           </span>
         </div>
 
-        {/* Mobile search */}
+        {/* Notification */}
         <button
-          type="button"
-          className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 md:hidden"
-          aria-label="Search"
+          className="relative text-xl text-slate-600 hover:text-blue-600 transition"
+          title="Notifications"
         >
-          <Search size={20} />
+          🔔
+
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white">
+          </span>
         </button>
 
-        {/* Notifications */}
-        <button
-          type="button"
-          className="relative rounded-xl p-2 text-slate-500 transition hover:bg-slate-100"
-          aria-label="Notifications"
-        >
-          <Bell size={20} />
+        {/* User */}
+        <div className="flex items-center gap-3">
 
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-        </button>
-
-        {/* Profile */}
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-xl p-1.5 transition hover:bg-slate-50"
-        >
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
             S
           </div>
 
-          <div className="hidden text-left md:block">
-            <p className="text-sm font-semibold text-slate-800">
+          <div className="hidden sm:block">
+            <p className="font-semibold text-slate-800">
               Sai
             </p>
 
@@ -86,11 +114,12 @@ function Topbar({ onMenuClick }) {
             </p>
           </div>
 
-          <ChevronDown
-            size={16}
-            className="hidden text-slate-400 md:block"
-          />
-        </button>
+          <span className="text-slate-400">
+            ▾
+          </span>
+
+        </div>
+
       </div>
     </header>
   );

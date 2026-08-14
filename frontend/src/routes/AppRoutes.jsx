@@ -1,27 +1,31 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Layout from "../components/layout/Layout";
 
 function PlaceholderPage({ title, description }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-2 text-2xl font-bold text-slate-900">
-        {title}
-      </div>
+    <Layout>
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <h1 className="mb-2 text-3xl font-bold text-slate-900">
+          {title}
+        </h1>
 
-      <p className="text-slate-500">
-        {description}
-      </p>
-
-      <div className="mt-6 rounded-xl bg-blue-50 p-5">
-        <p className="font-medium text-blue-700">
-          This module is currently under development.
+        <p className="text-slate-500">
+          {description}
         </p>
 
-        <p className="mt-1 text-sm text-blue-600">
-          It will be connected to the CloudSense AI backend in the upcoming phases.
-        </p>
+        <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-5">
+          <p className="font-semibold text-blue-700">
+            This module is currently under development.
+          </p>
+
+          <p className="mt-2 text-sm text-blue-600">
+            It will be connected to the CloudSense AI backend and machine
+            learning modules in the upcoming phases.
+          </p>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 
