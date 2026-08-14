@@ -1,64 +1,66 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import Dashboard from "../pages/Dashboard/Dashboard";
-import Layout from "../components/layout/Layout";
+import BillingImport from "../pages/BillingImport/BillingImport";
 
 function PlaceholderPage({ title, description }) {
   return (
-    <Layout>
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-3xl font-bold text-slate-900">
-          {title}
-        </h1>
+    <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="mb-2 text-2xl font-bold text-slate-900">
+        {title}
+      </div>
 
-        <p className="text-slate-500">
-          {description}
+      <p className="text-slate-500">
+        {description}
+      </p>
+
+      <div className="mt-6 rounded-xl bg-blue-50 p-5">
+        <p className="font-medium text-blue-700">
+          This module is currently under development.
         </p>
 
-        <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-5">
-          <p className="font-semibold text-blue-700">
-            This module is currently under development.
-          </p>
-
-          <p className="mt-2 text-sm text-blue-600">
-            It will be connected to the CloudSense AI backend and machine
-            learning modules in the upcoming phases.
-          </p>
-        </div>
+        <p className="mt-1 text-sm text-blue-600">
+          It will be connected to the CloudSense AI backend in the upcoming phases.
+        </p>
       </div>
-    </Layout>
+    </div>
   );
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
+      {/* Default Route */}
+      <Route
+        path="/"
+        element={<Navigate to="/dashboard" replace />}
+      />
+
+      {/* Dashboard */}
       <Route
         path="/dashboard"
         element={<Dashboard />}
       />
 
+      {/* Billing Import */}
       <Route
         path="/billing"
-        element={
-          <PlaceholderPage
-            title="Billing Import"
-            description="Import and validate cloud billing data from AWS, Azure, or Google Cloud."
-          />
-        }
+        element={<BillingImport />}
       />
 
+      {/* Analytics */}
       <Route
         path="/analytics"
         element={
           <PlaceholderPage
-            title="Analytics"
+            title="Cost Analytics"
             description="Explore detailed cloud spending trends and service-level cost analytics."
           />
         }
       />
 
+      {/* Anomaly Detection */}
       <Route
         path="/anomalies"
         element={
@@ -69,6 +71,7 @@ function AppRoutes() {
         }
       />
 
+      {/* Cost Forecast */}
       <Route
         path="/forecast"
         element={
@@ -79,16 +82,18 @@ function AppRoutes() {
         }
       />
 
+      {/* Recommendations */}
       <Route
         path="/recommendations"
         element={
           <PlaceholderPage
-            title="Recommendations"
+            title="AI Recommendations"
             description="Review AI-generated cloud cost optimization opportunities."
           />
         }
       />
 
+      {/* Reports */}
       <Route
         path="/reports"
         element={
@@ -99,6 +104,7 @@ function AppRoutes() {
         }
       />
 
+      {/* AI Assistant */}
       <Route
         path="/ai-assistant"
         element={
@@ -109,6 +115,7 @@ function AppRoutes() {
         }
       />
 
+      {/* Settings */}
       <Route
         path="/settings"
         element={
@@ -119,10 +126,12 @@ function AppRoutes() {
         }
       />
 
+      {/* Unknown Routes */}
       <Route
         path="*"
         element={<Navigate to="/dashboard" replace />}
       />
+
     </Routes>
   );
 }

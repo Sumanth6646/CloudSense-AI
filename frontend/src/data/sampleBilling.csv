@@ -1,0 +1,32 @@
+Date,Provider,Service,Region,Usage,Unit,Cost
+2026-07-01,AWS,EC2,us-east-1,120,Hours,420
+2026-07-02,AWS,EC2,us-east-1,125,Hours,438
+2026-07-03,AWS,S3,us-east-1,850,GB,210
+2026-07-04,AWS,RDS,us-east-1,72,Hours,185
+2026-07-05,Azure,Virtual Machines,east-us,95,Hours,360
+2026-07-06,Azure,Storage,east-us,620,GB,145
+2026-07-07,GCP,Compute Engine,us-central1,110,Hours,390
+2026-07-08,GCP,Cloud Storage,us-central1,540,GB,125
+2026-07-09,AWS,EC2,us-east-1,130,Hours,455
+2026-07-10,AWS,S3,us-east-1,920,GB,225
+2026-07-11,AWS,RDS,us-east-1,75,Hours,192
+2026-07-12,Azure,Virtual Machines,east-us,100,Hours,375
+2026-07-13,Azure,Storage,east-us,680,GB,158
+2026-07-14,GCP,Compute Engine,us-central1,115,Hours,405
+2026-07-15,GCP,Cloud Storage,us-central1,580,GB,132
+2026-07-16,AWS,EC2,us-east-1,128,Hours,448
+2026-07-17,AWS,S3,us-east-1,950,GB,235
+2026-07-18,AWS,RDS,us-east-1,78,Hours,198
+2026-07-19,Azure,Virtual Machines,east-us,105,Hours,388
+2026-07-20,Azure,Storage,east-us,720,GB,168
+2026-07-21,GCP,Compute Engine,us-central1,118,Hours,415
+2026-07-22,GCP,Cloud Storage,us-central1,610,GB,140
+2026-07-23,AWS,EC2,us-east-1,135,Hours,470
+2026-07-24,AWS,S3,us-east-1,980,GB,245
+2026-07-25,AWS,RDS,us-east-1,80,Hours,205
+2026-07-26,Azure,Virtual Machines,east-us,110,Hours,410
+2026-07-27,Azure,Storage,east-us,760,GB,180
+2026-07-28,GCP,Compute Engine,us-central1,122,Hours,430
+2026-07-29,GCP,Cloud Storage,us-central1,640,GB,148
+2026-07-30,AWS,EC2,us-east-1,180,Hours,720
+2026-07-31,AWS,S3,us-east-1,1100,GB,430
