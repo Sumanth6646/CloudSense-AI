@@ -7,87 +7,98 @@ import {
   Legend,
 } from "recharts";
 
-import {
-  serviceCost,
-  currencySymbol,
-} from "../../data/costdata";
+import { useBillingData } from "../../context/BillingDataContext";
 
 const colours = [
   "#2563EB",
   "#22C55E",
   "#F59E0B",
   "#EF4444",
+  "#8B5CF6",
+  "#06B6D4",
 ];
 
 function PieChartCard() {
-  const total = serviceCost.reduce(
-    (sum, item) => sum + item.value,
-    0
+  const { billingData } = useBillingData();
+
+  /*
+   * Group billing costs by cloud service.
+   *
+   * Example:
+   *
+   * EC2      → 2031
+   * S3       → 1135
+   * RDS      → 780
+   */
+
+  const serviceTotals = {};
+
+  billingData.forEach((item) => {
+    const service = item.Service || "Unknown";
+    const cost = Number(item.Cost || 0);
+
+    if (!serviceTotals[service]) {
+      serviceTotals[service] = 0;
+    }
+
+    serviceTotals[service] += cost;
+  });
+
+  const chartData = Object.entries(serviceTotals).map(
+    ([name, value]) => ({
+      name,
+      value,
+    })
   );
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+    <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 h-[380px]">
+
       <div className="mb-2">
-        <h3 className="text-base font-bold text-slate-900">
+        <h3 className="text-xl font-bold text-slate-900">
           Service Cost Distribution
         </h3>
 
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-sm text-slate-500">
           Spending by cloud service
         </p>
       </div>
 
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      {chartData.length === 0 ? (
+        <div className="flex h-[280px] items-center justify-center text-slate-400">
+          Upload billing data to view service costs.
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height="80%">
           <PieChart>
+
             <Pie
-              data={serviceCost}
+              data={chartData}
               dataKey="value"
               nameKey="name"
               cx="50%"
               cy="45%"
-              innerRadius={65}
-              outerRadius={100}
-              paddingAngle={3}
-              label={({ name, percent }) =>
-                `${name} ${(percent * 100).toFixed(0)}%`
-              }
-              labelLine={false}
+              outerRadius={90}
+              label
             >
-              {serviceCost.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell
-                  key={entry.name}
+                  key={`cell-${index}`}
                   fill={colours[index % colours.length]}
                 />
               ))}
             </Pie>
 
             <Tooltip
-              formatter={(value) => [
-                `${currencySymbol}${Number(value).toLocaleString()}`,
-                "Cost",
-              ]}
+              formatter={(value) => [`$${value}`, "Cost"]}
             />
 
-            <Legend
-              verticalAlign="bottom"
-              height={30}
-              iconType="circle"
-            />
+            <Legend />
+
           </PieChart>
         </ResponsiveContainer>
-      </div>
+      )}
 
-      <div className="mt-1 text-center">
-        <p className="text-xs text-slate-500">
-          Total analyzed cost
-        </p>
-
-        <p className="text-lg font-bold text-slate-900">
-          {currencySymbol}
-          {total.toLocaleString()}
-        </p>
-      </div>
     </div>
   );
 }

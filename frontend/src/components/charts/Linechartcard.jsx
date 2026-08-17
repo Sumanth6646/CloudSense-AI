@@ -8,79 +8,67 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { monthlyCost, currencySymbol } from "../../data/costdata";
+import { useBillingData } from "../../context/BillingDataContext";
 
 function LineChartCard() {
-  const formatCurrency = (value) =>
-    `${currencySymbol}${Number(value).toLocaleString()}`;
+  const { billingData } = useBillingData();
+
+  /*
+   * Convert billing records into chart data.
+   *
+   * Example:
+   *
+   * 2026-07-01 → 420
+   * 2026-07-02 → 438
+   * 2026-07-03 → 210
+   */
+
+  const chartData = billingData.map((item) => ({
+    date: item.Date,
+    cost: Number(item.Cost || 0),
+  }));
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="text-base font-bold text-slate-900">
-            Cloud Cost Trend
-          </h3>
+    <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 h-[380px]">
 
-          <p className="mt-1 text-xs text-slate-500">
-            Monthly cloud spending
-          </p>
-        </div>
+      <div className="mb-5">
+        <h3 className="text-xl font-bold text-slate-900">
+          Cloud Cost Trend
+        </h3>
 
-        <div className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600">
-          Last 6 Months
-        </div>
+        <p className="mt-1 text-sm text-slate-500">
+          Daily cloud spending from imported billing data
+        </p>
       </div>
 
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      {chartData.length === 0 ? (
+        <div className="flex h-[280px] items-center justify-center text-slate-400">
+          Upload billing data to view the cost trend.
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height="75%">
           <LineChart
-            data={monthlyCost}
+            data={chartData}
             margin={{
               top: 10,
-              right: 10,
-              left: 0,
-              bottom: 5,
+              right: 20,
+              left: 10,
+              bottom: 10,
             }}
           >
-            <CartesianGrid
-              stroke="#E2E8F0"
-              strokeDasharray="4 4"
-              vertical={false}
-            />
+            <CartesianGrid strokeDasharray="3 3" />
 
             <XAxis
-              dataKey="month"
-              axisLine={false}
-              tickLine={false}
-              tick={{
-                fill: "#64748B",
-                fontSize: 12,
-              }}
+              dataKey="date"
+              tick={{ fontSize: 11 }}
             />
 
             <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{
-                fill: "#64748B",
-                fontSize: 12,
-              }}
-              tickFormatter={(value) =>
-                `$${(value / 1000).toFixed(0)}k`
-              }
+              tick={{ fontSize: 11 }}
             />
 
             <Tooltip
-              contentStyle={{
-                borderRadius: "12px",
-                border: "1px solid #E2E8F0",
-                boxShadow: "0 10px 30px rgba(15, 23, 42, 0.10)",
-              }}
-              formatter={(value) => [
-                formatCurrency(value),
-                "Cloud Cost",
-              ]}
+              formatter={(value) => [`$${value}`, "Cost"]}
             />
 
             <Line
@@ -88,20 +76,13 @@ function LineChartCard() {
               dataKey="cost"
               stroke="#2563EB"
               strokeWidth={3}
-              dot={{
-                r: 4,
-                fill: "#FFFFFF",
-                stroke: "#2563EB",
-                strokeWidth: 2,
-              }}
-              activeDot={{
-                r: 6,
-                fill: "#2563EB",
-              }}
+              dot={{ r: 3 }}
+              activeDot={{ r: 6 }}
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
+      )}
+
     </div>
   );
 }
