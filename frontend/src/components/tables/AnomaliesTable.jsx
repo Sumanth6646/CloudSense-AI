@@ -1,154 +1,214 @@
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock3,
-} from "lucide-react";
-
-import {
-  anomalies,
-  currencySymbol,
-} from "../../data/costdata";
-
-const severityConfig = {
-  Critical: {
-    className: "bg-red-50 text-red-700 ring-red-600/10",
-  },
-  High: {
-    className: "bg-orange-50 text-orange-700 ring-orange-600/10",
-  },
-  Medium: {
-    className: "bg-amber-50 text-amber-700 ring-amber-600/10",
-  },
-  Low: {
-    className: "bg-emerald-50 text-emerald-700 ring-emerald-600/10",
-  },
-};
-
-const statusConfig = {
-  Open: {
-    icon: AlertTriangle,
-    className: "text-red-600",
-  },
-  Investigating: {
-    icon: Clock3,
-    className: "text-amber-600",
-  },
-  Resolved: {
-    icon: CheckCircle2,
-    className: "text-emerald-600",
-  },
-};
+import { useBillingData } from "../../context/BillingDataContext";
 
 function AnomaliesTable() {
+  const { billingData } = useBillingData();
+
+  /*
+   * Temporary frontend anomaly detection.
+   *
+   * Later this will be replaced by the
+   * Isolation Forest ML model in Phase 4.
+   */
+
+  const costs = billingData.map((item) =>
+    Number(item.Cost || 0)
+  );
+
+  const averageCost =
+    costs.length > 0
+      ? costs.reduce((sum, cost) => sum + cost, 0) /
+        costs.length
+      : 0;
+
+  /*
+   * A record is considered anomalous if its cost
+   * is at least 1.5x the average cost.
+   */
+
+  const anomalyThreshold = averageCost * 1.5;
+
+  const anomalies = billingData
+    .filter(
+      (item) =>
+        Number(item.Cost || 0) >= anomalyThreshold
+    )
+    .map((item) => {
+      const cost = Number(item.Cost || 0);
+
+      let severity = "Low";
+
+      if (cost >= averageCost * 2.5) {
+        severity = "Critical";
+      } else if (cost >= averageCost * 2) {
+        severity = "High";
+      } else if (cost >= averageCost * 1.5) {
+        severity = "Medium";
+      }
+
+      return {
+        ...item,
+        severity,
+        status: "Open",
+      };
+    });
+
+  const getSeverityClass = (severity) => {
+    switch (severity) {
+      case "Critical":
+        return "bg-red-100 text-red-700";
+
+      case "High":
+        return "bg-orange-100 text-orange-700";
+
+      case "Medium":
+        return "bg-yellow-100 text-yellow-700";
+
+      case "Low":
+        return "bg-green-100 text-green-700";
+
+      default:
+        return "bg-slate-100 text-slate-700";
+    }
+  };
+
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-5 md:p-6">
-        <div>
-          <div className="flex items-center gap-2">
-            <AlertTriangle
-              size={19}
-              className="text-red-500"
-            />
+    <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200">
 
-            <h2 className="text-base font-bold text-slate-900">
-              Recent Cost Anomalies
-            </h2>
-          </div>
+      {/* Header */}
+      <div className="border-b border-slate-200 p-6">
 
-          <p className="mt-1 text-xs text-slate-500">
-            Unusual spending patterns detected in your cloud account
-          </p>
-        </div>
+        <h2 className="text-xl font-bold text-slate-900">
+          Recent Cost Anomalies
+        </h2>
 
-        <button
-          type="button"
-          className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
-        >
-          View All
-        </button>
+        <p className="mt-1 text-sm text-slate-500">
+          Unusual spending detected from imported billing data.
+        </p>
+
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] text-left">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/70">
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Date
-              </th>
+      {/* No data */}
+      {billingData.length === 0 && (
+        <div className="p-10 text-center text-slate-400">
+          Upload billing data to detect cost anomalies.
+        </div>
+      )}
 
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Cloud Service
-              </th>
+      {/* No anomalies */}
+      {billingData.length > 0 && anomalies.length === 0 && (
+        <div className="p-10 text-center">
 
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Cost
-              </th>
+          <div className="text-4xl">
+            ✓
+          </div>
 
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Severity
-              </th>
+          <p className="mt-3 font-semibold text-green-600">
+            No unusual spending detected
+          </p>
 
-              <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Status
-              </th>
-            </tr>
-          </thead>
+          <p className="mt-1 text-sm text-slate-500">
+            The imported billing data is currently within
+            the expected spending range.
+          </p>
 
-          <tbody>
-            {anomalies.map((item) => {
-              const severity =
-                severityConfig[item.severity] ||
-                severityConfig.Low;
+        </div>
+      )}
 
-              const status =
-                statusConfig[item.status] ||
-                statusConfig.Open;
+      {/* Anomaly table */}
+      {anomalies.length > 0 && (
+        <div className="overflow-x-auto">
 
-              const StatusIcon = status.icon;
+          <table className="w-full text-left text-sm">
 
-              return (
+            <thead className="bg-slate-50">
+
+              <tr>
+
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Date
+                </th>
+
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Provider
+                </th>
+
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Service
+                </th>
+
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Cost
+                </th>
+
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Severity
+                </th>
+
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Status
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {anomalies.map((item, index) => (
+
                 <tr
-                  key={`${item.date}-${item.service}`}
-                  className="border-b border-slate-100 last:border-0 transition hover:bg-slate-50"
+                  key={index}
+                  className="border-t border-slate-100 hover:bg-slate-50"
                 >
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {item.date}
+
+                  <td className="px-6 py-4">
+                    {item.Date}
+                  </td>
+
+                  <td className="px-6 py-4 font-medium">
+                    {item.Provider}
                   </td>
 
                   <td className="px-6 py-4">
-                    <p className="text-sm font-semibold text-slate-800">
-                      {item.service}
-                    </p>
+                    {item.Service}
                   </td>
 
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-800">
-                    {currencySymbol}
-                    {item.cost.toLocaleString()}
+                  <td className="px-6 py-4 font-semibold">
+                    ${Number(item.Cost).toLocaleString()}
                   </td>
 
                   <td className="px-6 py-4">
+
                     <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${severity.className}`}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${getSeverityClass(
+                        item.severity
+                      )}`}
                     >
                       {item.severity}
                     </span>
+
                   </td>
 
                   <td className="px-6 py-4">
-                    <div
-                      className={`flex items-center gap-2 text-sm font-medium ${status.className}`}
-                    >
-                      <StatusIcon size={15} />
+
+                    <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                       {item.status}
-                    </div>
+                    </span>
+
                   </td>
+
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </section>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+      )}
+
+    </div>
   );
 }
 
