@@ -1,10 +1,16 @@
 from fastapi import FastAPI
 
+from app.routers.billing import router as billing_router
+
+
 app = FastAPI(
     title="CloudSense AI API",
     description="Backend API for cloud cost optimization and anomaly detection",
     version="1.0.0",
 )
+
+
+app.include_router(billing_router)
 
 
 @app.get("/")
