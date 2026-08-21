@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { parseCSV } from "../../utils/csvParser";
 
 function BillingUpload({ onDataImported }) {
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const processFile = (file) => {
+  const processFile = async (file) => {
     if (!file) {
       return;
     }
@@ -19,25 +19,44 @@ function BillingUpload({ onDataImported }) {
     }
 
     setFileName(file.name);
+    setIsUploading(true);
 
-    const reader = new FileReader();
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    reader.onload = (event) => {
-      try {
-        const csvText = event.target.result;
-        const data = parseCSV(csvText);
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/billing/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-        onDataImported(data);
-      } catch (err) {
-        setError(err.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.detail?.message ||
+          result.detail ||
+          "Unable to process billing file."
+        );
       }
-    };
 
-    reader.onerror = () => {
-      setError("Unable to read the selected file.");
-    };
+      if (result.status !== "success") {
+        throw new Error(
+          result.message || "Billing file processing failed."
+        );
+      }
 
-    reader.readAsText(file);
+      onDataImported(result);
+
+    } catch (err) {
+      console.error("Billing upload error:", err);
+      setError(err.message || "Unable to connect to the backend.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleFileChange = (event) => {
@@ -56,6 +75,7 @@ function BillingUpload({ onDataImported }) {
   return (
     <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200">
       <div className="text-center">
+
         <div
           className={`mx-auto flex max-w-2xl flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition ${
             isDragging
@@ -69,8 +89,9 @@ function BillingUpload({ onDataImported }) {
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
         >
+
           <div className="mb-4 text-5xl">
-            📂
+            📁
           </div>
 
           <h2 className="text-xl font-bold text-slate-800">
@@ -81,26 +102,34 @@ function BillingUpload({ onDataImported }) {
             Upload your AWS, Azure, or Google Cloud billing CSV file.
           </p>
 
-          <label className="mt-6 cursor-pointer rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700">
-            Choose CSV File
+          <label
+            className={`mt-6 cursor-pointer rounded-xl px-6 py-3 font-semibold text-white shadow-sm transition ${
+              isUploading
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {isUploading ? "Analyzing..." : "Choose CSV File"}
 
             <input
               type="file"
               accept=".csv"
               className="hidden"
               onChange={handleFileChange}
+              disabled={isUploading}
             />
           </label>
 
           <p className="mt-4 text-xs text-slate-400">
             Supported format: .CSV
           </p>
+
         </div>
 
         {fileName && !error && (
           <div className="mx-auto mt-5 max-w-2xl rounded-xl border border-green-200 bg-green-50 p-4 text-left">
             <p className="font-semibold text-green-700">
-              ✓ File selected
+              ✓ File processed successfully
             </p>
 
             <p className="mt-1 text-sm text-green-600">
@@ -120,6 +149,7 @@ function BillingUpload({ onDataImported }) {
             </p>
           </div>
         )}
+
       </div>
     </div>
   );

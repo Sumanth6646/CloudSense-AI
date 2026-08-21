@@ -1,7 +1,6 @@
+import { useBillingData } from "../../context/BillingDataContext";
 import Layout from "../../components/layout/Layout";
 import BillingUpload from "../../components/upload/BillingUpload";
-import BillingInsights from "../../components/insights/BillingInsights";
-import { useBillingData } from "../../context/BillingDataContext";
 
 function BillingImport() {
   const {
@@ -10,12 +9,15 @@ function BillingImport() {
     totalCost,
   } = useBillingData();
 
-  const handleDataImported = (data) => {
-    updateBillingData(data);
+  const handleDataImported = (result) => {
+    updateBillingData(result);
   };
+
+  const records = billingData?.data || [];
 
   return (
     <Layout>
+
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">
@@ -27,47 +29,39 @@ function BillingImport() {
         </p>
       </div>
 
-      {/* Upload Section */}
+      {/* Upload */}
       <BillingUpload
         onDataImported={handleDataImported}
       />
 
-      {/* Imported Data Summary */}
-      {billingData.length > 0 && (
-        <>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {/* Records */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      {/* Results */}
+      {records.length > 0 && (
+        <div className="mt-8">
+
+          {/* Summary Cards */}
+          <div className="grid gap-5 md:grid-cols-3">
+
+            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
               <p className="text-sm font-semibold text-slate-500">
                 Imported Records
               </p>
 
               <p className="mt-2 text-3xl font-bold text-slate-900">
-                {billingData.length}
-              </p>
-
-              <p className="mt-1 text-sm text-slate-400">
-                Billing entries processed
+                {billingData.records}
               </p>
             </div>
 
-            {/* Total Cost */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
               <p className="text-sm font-semibold text-slate-500">
                 Total Cost
               </p>
 
               <p className="mt-2 text-3xl font-bold text-blue-600">
-                ${totalCost.toLocaleString()}
-              </p>
-
-              <p className="mt-1 text-sm text-slate-400">
-                Total imported cloud spending
+                ${Number(totalCost).toLocaleString()}
               </p>
             </div>
 
-            {/* Status */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
               <p className="text-sm font-semibold text-slate-500">
                 Data Status
               </p>
@@ -75,33 +69,63 @@ function BillingImport() {
               <p className="mt-2 text-3xl font-bold text-green-600">
                 Valid
               </p>
-
-              <p className="mt-1 text-sm text-slate-400">
-                CSV successfully processed
-              </p>
             </div>
+
           </div>
 
-          {/* Dynamic Analysis */}
-          <BillingInsights
-            billingData={billingData}
-          />
+          {/* Provider Summary */}
+          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
 
-          {/* Imported Billing Records */}
-          <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <h2 className="text-xl font-bold text-slate-900">
+              Cloud Provider Cost Analysis
+            </h2>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+
+              {Object.entries(
+                billingData.provider_summary || {}
+              ).map(([provider, cost]) => (
+
+                <div
+                  key={provider}
+                  className="rounded-xl bg-slate-50 p-5"
+                >
+                  <p className="text-sm text-slate-500">
+                    {provider}
+                  </p>
+
+                  <p className="mt-2 text-2xl font-bold text-slate-900">
+                    ${Number(cost).toLocaleString()}
+                  </p>
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* Billing Records */}
+          <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200">
+
             <div className="border-b border-slate-200 p-6">
+
               <h2 className="text-xl font-bold text-slate-900">
                 Imported Billing Records
               </h2>
 
               <p className="mt-1 text-sm text-slate-500">
-                Data successfully parsed from the uploaded CSV file.
+                Billing data processed by the CloudSense AI backend.
               </p>
+
             </div>
 
             <div className="overflow-x-auto">
+
               <table className="w-full text-left text-sm">
+
                 <thead className="bg-slate-50">
+
                   <tr>
                     <th className="px-6 py-4 font-semibold text-slate-600">
                       Date
@@ -127,14 +151,18 @@ function BillingImport() {
                       Cost
                     </th>
                   </tr>
+
                 </thead>
 
                 <tbody>
-                  {billingData.map((item, index) => (
+
+                  {records.map((item, index) => (
+
                     <tr
                       key={index}
                       className="border-t border-slate-100 hover:bg-slate-50"
                     >
+
                       <td className="px-6 py-4">
                         {item.Date}
                       </td>
@@ -156,16 +184,24 @@ function BillingImport() {
                       </td>
 
                       <td className="px-6 py-4 font-semibold">
-                        ${Number(item.Cost || 0).toLocaleString()}
+                        ${Number(item.Cost).toLocaleString()}
                       </td>
+
                     </tr>
+
                   ))}
+
                 </tbody>
+
               </table>
+
             </div>
+
           </div>
-        </>
+
+        </div>
       )}
+
     </Layout>
   );
 }
