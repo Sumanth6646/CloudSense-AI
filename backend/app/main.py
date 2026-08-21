@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-
 from app.routers.billing import router as billing_router
 
 
@@ -10,6 +9,7 @@ app = FastAPI(
 )
 
 
+# Include Billing Router
 app.include_router(billing_router)
 
 
