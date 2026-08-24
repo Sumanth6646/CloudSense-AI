@@ -49,7 +49,7 @@ function BillingUpload({ onDataImported }) {
         );
       }
 
-      onDataImported(result);
+      onDataImported(result.data);
 
     } catch (err) {
       console.error("Billing upload error:", err);
