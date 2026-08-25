@@ -4,44 +4,31 @@ function AnomaliesTable() {
   const { billingData } = useBillingData();
 
   /*
-   * Temporary frontend anomaly detection.
+   * Anomaly Detection
    *
-   * Later this will be replaced by the
-   * Isolation Forest ML model in Phase 4.
+   * The backend now uses Isolation Forest.
+   *
+   * anomaly =  1  -> Normal
+   * anomaly = -1  -> Anomaly
    */
-
-  const costs = billingData.map((item) =>
-    Number(item.Cost || 0)
-  );
-
-  const averageCost =
-    costs.length > 0
-      ? costs.reduce((sum, cost) => sum + cost, 0) /
-        costs.length
-      : 0;
-
-  /*
-   * A record is considered anomalous if its cost
-   * is at least 1.5x the average cost.
-   */
-
-  const anomalyThreshold = averageCost * 1.5;
 
   const anomalies = billingData
-    .filter(
-      (item) =>
-        Number(item.Cost || 0) >= anomalyThreshold
-    )
+    .filter((item) => Number(item.anomaly) === -1)
     .map((item) => {
-      const cost = Number(item.Cost || 0);
+      const anomalyScore = Number(item.anomaly_score || 0);
 
-      let severity = "Low";
+      /*
+       * Determine severity using the ML anomaly score.
+       *
+       * Higher anomaly score = more unusual.
+       */
+      let severity = "Medium";
 
-      if (cost >= averageCost * 2.5) {
+      if (anomalyScore >= 0.15) {
         severity = "Critical";
-      } else if (cost >= averageCost * 2) {
+      } else if (anomalyScore >= 0.10) {
         severity = "High";
-      } else if (cost >= averageCost * 1.5) {
+      } else {
         severity = "Medium";
       }
 
@@ -50,7 +37,12 @@ function AnomaliesTable() {
         severity,
         status: "Open",
       };
-    });
+    })
+    .sort(
+      (a, b) =>
+        Number(b.anomaly_score || 0) -
+        Number(a.anomaly_score || 0)
+    );
 
   const getSeverityClass = (severity) => {
     switch (severity) {
@@ -62,9 +54,6 @@ function AnomaliesTable() {
 
       case "Medium":
         return "bg-yellow-100 text-yellow-700";
-
-      case "Low":
-        return "bg-green-100 text-green-700";
 
       default:
         return "bg-slate-100 text-slate-700";
@@ -82,7 +71,7 @@ function AnomaliesTable() {
         </h2>
 
         <p className="mt-1 text-sm text-slate-500">
-          Unusual spending detected from imported billing data.
+          Unusual spending detected using Isolation Forest.
         </p>
 
       </div>
@@ -107,8 +96,8 @@ function AnomaliesTable() {
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
-            The imported billing data is currently within
-            the expected spending range.
+            Isolation Forest did not identify any anomalous
+            billing records.
           </p>
 
         </div>
@@ -141,6 +130,10 @@ function AnomaliesTable() {
                 </th>
 
                 <th className="px-6 py-4 font-semibold text-slate-600">
+                  Anomaly Score
+                </th>
+
+                <th className="px-6 py-4 font-semibold text-slate-600">
                   Severity
                 </th>
 
@@ -157,7 +150,7 @@ function AnomaliesTable() {
               {anomalies.map((item, index) => (
 
                 <tr
-                  key={index}
+                  key={`${item.Date}-${item.Service}-${index}`}
                   className="border-t border-slate-100 hover:bg-slate-50"
                 >
 
@@ -174,7 +167,11 @@ function AnomaliesTable() {
                   </td>
 
                   <td className="px-6 py-4 font-semibold">
-                    ${Number(item.Cost).toLocaleString()}
+                    ${Number(item.Cost || 0).toLocaleString()}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    {Number(item.anomaly_score || 0).toFixed(3)}
                   </td>
 
                   <td className="px-6 py-4">

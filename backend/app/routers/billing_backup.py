@@ -2,8 +2,6 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 import pandas as pd
 from io import BytesIO
 
-from app.ml.anomaly_detector import detect_anomalies
-
 router = APIRouter(
     prefix="/api/billing",
     tags=["Billing"],
@@ -70,8 +68,6 @@ async def upload_billing_file(
         dataframe = dataframe.dropna(
             subset=["Cost", "Usage"]
         )
-        # Run ML anomaly detection
-        dataframe = detect_anomalies(dataframe)
 
         # Calculate total cost
         total_cost = float(
