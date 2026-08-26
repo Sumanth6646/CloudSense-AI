@@ -1,49 +1,83 @@
+import { useEffect, useState } from "react";
 import { useBillingData } from "../../context/BillingDataContext";
 
 function AnomaliesTable() {
   const { billingData } = useBillingData();
 
+  const [anomalies, setAnomalies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   /*
-   * Anomaly Detection
-   *
-   * The backend now uses Isolation Forest.
-   *
-   * anomaly =  1  -> Normal
-   * anomaly = -1  -> Anomaly
+   * Run Isolation Forest whenever billing data changes.
    */
+  useEffect(() => {
+    if (!billingData || billingData.length < 5) {
+      setAnomalies([]);
+      setError("");
+      return;
+    }
 
-  const anomalies = billingData
-    .filter((item) => Number(item.anomaly) === -1)
-    .map((item) => {
-      const anomalyScore = Number(item.anomaly_score || 0);
+    const detectAnomalies = async () => {
+      setLoading(true);
+      setError("");
 
-      /*
-       * Determine severity using the ML anomaly score.
-       *
-       * Higher anomaly score = more unusual.
-       */
-      let severity = "Medium";
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/anomaly/detect",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(billingData),
+          }
+        );
 
-      if (anomalyScore >= 0.15) {
-        severity = "Critical";
-      } else if (anomalyScore >= 0.10) {
-        severity = "High";
-      } else {
-        severity = "Medium";
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.detail ||
+              "Unable to detect billing anomalies."
+          );
+        }
+
+        if (result.status !== "success") {
+          throw new Error(
+            result.message ||
+              "Anomaly detection failed."
+          );
+        }
+
+        setAnomalies(result.anomalies || []);
+
+      } catch (err) {
+        console.error(
+          "Anomaly detection error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Unable to connect to anomaly detection API."
+        );
+
+        setAnomalies([]);
+
+      } finally {
+        setLoading(false);
       }
+    };
 
-      return {
-        ...item,
-        severity,
-        status: "Open",
-      };
-    })
-    .sort(
-      (a, b) =>
-        Number(b.anomaly_score || 0) -
-        Number(a.anomaly_score || 0)
-    );
+    detectAnomalies();
 
+  }, [billingData]);
+
+
+  /*
+   * Severity styling
+   */
   const getSeverityClass = (severity) => {
     switch (severity) {
       case "Critical":
@@ -55,10 +89,14 @@ function AnomaliesTable() {
       case "Medium":
         return "bg-yellow-100 text-yellow-700";
 
+      case "Low":
+        return "bg-green-100 text-green-700";
+
       default:
         return "bg-slate-100 text-slate-700";
     }
   };
+
 
   return (
     <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200">
@@ -71,139 +109,244 @@ function AnomaliesTable() {
         </h2>
 
         <p className="mt-1 text-sm text-slate-500">
-          Unusual spending detected using Isolation Forest.
+          Unusual spending detected using the
+          Isolation Forest ML model.
         </p>
 
       </div>
 
-      {/* No data */}
+
+      {/* No billing data */}
       {billingData.length === 0 && (
         <div className="p-10 text-center text-slate-400">
-          Upload billing data to detect cost anomalies.
+
+          <p>
+            Upload billing data to detect
+            cost anomalies.
+          </p>
+
         </div>
       )}
 
-      {/* No anomalies */}
-      {billingData.length > 0 && anomalies.length === 0 && (
+
+      {/* Not enough data */}
+      {billingData.length > 0 &&
+        billingData.length < 5 && (
+          <div className="p-10 text-center">
+
+            <div className="text-4xl">
+              📊
+            </div>
+
+            <p className="mt-3 font-semibold text-slate-700">
+              Not enough data for ML detection
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Isolation Forest requires at least
+              5 billing records.
+            </p>
+
+          </div>
+        )}
+
+
+      {/* Loading */}
+      {loading && (
         <div className="p-10 text-center">
 
           <div className="text-4xl">
-            ✓
+            🤖
           </div>
 
-          <p className="mt-3 font-semibold text-green-600">
-            No unusual spending detected
+          <p className="mt-3 font-semibold text-blue-600">
+            Running Isolation Forest...
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
-            Isolation Forest did not identify any anomalous
-            billing records.
+            Analyzing billing patterns for unusual
+            spending.
           </p>
 
         </div>
       )}
 
-      {/* Anomaly table */}
-      {anomalies.length > 0 && (
-        <div className="overflow-x-auto">
 
-          <table className="w-full text-left text-sm">
+      {/* Error */}
+      {error && !loading && (
+        <div className="p-6">
 
-            <thead className="bg-slate-50">
+          <div className="rounded-xl border border-red-200 bg-red-50 p-5">
 
-              <tr>
+            <h3 className="font-bold text-red-700">
+              Anomaly detection failed
+            </h3>
 
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Date
-                </th>
+            <p className="mt-1 text-sm text-red-600">
+              {error}
+            </p>
 
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Provider
-                </th>
-
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Service
-                </th>
-
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Cost
-                </th>
-
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Anomaly Score
-                </th>
-
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Severity
-                </th>
-
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Status
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {anomalies.map((item, index) => (
-
-                <tr
-                  key={`${item.Date}-${item.Service}-${index}`}
-                  className="border-t border-slate-100 hover:bg-slate-50"
-                >
-
-                  <td className="px-6 py-4">
-                    {item.Date}
-                  </td>
-
-                  <td className="px-6 py-4 font-medium">
-                    {item.Provider}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {item.Service}
-                  </td>
-
-                  <td className="px-6 py-4 font-semibold">
-                    ${Number(item.Cost || 0).toLocaleString()}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {Number(item.anomaly_score || 0).toFixed(3)}
-                  </td>
-
-                  <td className="px-6 py-4">
-
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${getSeverityClass(
-                        item.severity
-                      )}`}
-                    >
-                      {item.severity}
-                    </span>
-
-                  </td>
-
-                  <td className="px-6 py-4">
-
-                    <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                      {item.status}
-                    </span>
-
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
+          </div>
 
         </div>
       )}
+
+
+      {/* No anomalies */}
+      {!loading &&
+        !error &&
+        billingData.length >= 5 &&
+        anomalies.length === 0 && (
+          <div className="p-10 text-center">
+
+            <div className="text-4xl">
+              ✓
+            </div>
+
+            <p className="mt-3 font-semibold text-green-600">
+              No unusual spending detected
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Isolation Forest did not identify
+              any significant billing anomalies.
+            </p>
+
+          </div>
+        )}
+
+
+      {/* Anomaly table */}
+      {!loading &&
+        !error &&
+        anomalies.length > 0 && (
+          <div className="overflow-x-auto">
+
+            <table className="w-full text-left text-sm">
+
+              <thead className="bg-slate-50">
+
+                <tr>
+
+                  <th className="px-6 py-4 font-semibold text-slate-600">
+                    Date
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-slate-600">
+                    Provider
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-slate-600">
+                    Service
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-slate-600">
+                    Cost
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-slate-600">
+                    Anomaly Score
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-slate-600">
+                    Severity
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-slate-600">
+                    Status
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                {anomalies.map((item, index) => (
+
+                  <tr
+                    key={`${item.Date}-${item.Service}-${index}`}
+                    className="border-t border-slate-100 hover:bg-slate-50"
+                  >
+
+                    {/* Date */}
+                    <td className="px-6 py-4">
+                      {item.Date}
+                    </td>
+
+
+                    {/* Provider */}
+                    <td className="px-6 py-4 font-medium">
+                      {item.Provider}
+                    </td>
+
+
+                    {/* Service */}
+                    <td className="px-6 py-4">
+                      {item.Service}
+                    </td>
+
+
+                    {/* Cost */}
+                    <td className="px-6 py-4 font-semibold">
+                      $
+                      {Number(
+                        item.Cost || 0
+                      ).toLocaleString(
+                        undefined,
+                        {
+                          maximumFractionDigits: 2,
+                        }
+                      )}
+                    </td>
+
+
+                    {/* Anomaly Score */}
+                    <td className="px-6 py-4">
+
+                      <span className="font-mono text-xs text-slate-600">
+                        {Number(
+                          item.anomaly_score || 0
+                        ).toFixed(4)}
+                      </span>
+
+                    </td>
+
+
+                    {/* Severity */}
+                    <td className="px-6 py-4">
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${getSeverityClass(
+                          item.severity
+                        )}`}
+                      >
+                        {item.severity}
+                      </span>
+
+                    </td>
+
+
+                    {/* Status */}
+                    <td className="px-6 py-4">
+
+                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                        {item.status}
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+        )}
 
     </div>
   );

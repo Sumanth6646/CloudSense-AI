@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers.billing import router as billing_router
 from app.routers.forecast import router as forecast_router
 from app.routers.recommendations import router as recommendations_router
+from app.routers.anomaly import router as anomaly_router
 
 
 app = FastAPI(
@@ -17,7 +18,7 @@ app = FastAPI(
 
 
 # --------------------------------------------------
-# CORS
+# CORS Configuration
 # --------------------------------------------------
 
 app.add_middleware(
@@ -33,16 +34,17 @@ app.add_middleware(
 
 
 # --------------------------------------------------
-# Routers
+# API Routers
 # --------------------------------------------------
 
 app.include_router(billing_router)
 app.include_router(forecast_router)
 app.include_router(recommendations_router)
+app.include_router(anomaly_router)
 
 
 # --------------------------------------------------
-# Basic routes
+# Root Endpoint
 # --------------------------------------------------
 
 @app.get("/")
@@ -52,6 +54,10 @@ def root():
         "status": "success",
     }
 
+
+# --------------------------------------------------
+# Health Check
+# --------------------------------------------------
 
 @app.get("/health")
 def health_check():

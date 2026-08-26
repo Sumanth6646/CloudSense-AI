@@ -2,7 +2,6 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 import pandas as pd
 from io import BytesIO
 
-from app.ml.anomaly_detector import detect_anomalies
 
 router = APIRouter(
     prefix="/api/billing",
@@ -33,13 +32,24 @@ async def upload_billing_file(
         )
 
     try:
+        # ---------------------------------------------
         # Read uploaded file
+        # ---------------------------------------------
+
         contents = await file.read()
 
+        # ---------------------------------------------
         # Convert CSV into Pandas DataFrame
-        dataframe = pd.read_csv(BytesIO(contents))
+        # ---------------------------------------------
 
+        dataframe = pd.read_csv(
+            BytesIO(contents)
+        )
+
+        # ---------------------------------------------
         # Check required columns
+        # ---------------------------------------------
+
         missing_columns = [
             column
             for column in REQUIRED_COLUMNS
@@ -55,7 +65,10 @@ async def upload_billing_file(
                 },
             )
 
+        # ---------------------------------------------
         # Convert Cost and Usage to numbers
+        # ---------------------------------------------
+
         dataframe["Cost"] = pd.to_numeric(
             dataframe["Cost"],
             errors="coerce",
@@ -66,34 +79,51 @@ async def upload_billing_file(
             errors="coerce",
         )
 
+        # ---------------------------------------------
         # Remove invalid rows
+        # ---------------------------------------------
+
         dataframe = dataframe.dropna(
             subset=["Cost", "Usage"]
         )
-        # Run ML anomaly detection
-        dataframe = detect_anomalies(dataframe)
 
+        # ---------------------------------------------
         # Calculate total cost
+        # ---------------------------------------------
+
         total_cost = float(
             dataframe["Cost"].sum()
         )
 
+        # ---------------------------------------------
         # Number of records
+        # ---------------------------------------------
+
         record_count = len(dataframe)
 
+        # ---------------------------------------------
         # Provider summary
+        # ---------------------------------------------
+
         provider_summary = (
             dataframe.groupby("Provider")["Cost"]
             .sum()
             .to_dict()
         )
 
+        # ---------------------------------------------
         # Service summary
+        # ---------------------------------------------
+
         service_summary = (
             dataframe.groupby("Service")["Cost"]
             .sum()
             .to_dict()
         )
+
+        # ---------------------------------------------
+        # Return processed billing data
+        # ---------------------------------------------
 
         return {
             "status": "success",
@@ -114,5 +144,8 @@ async def upload_billing_file(
     except Exception as error:
         raise HTTPException(
             status_code=500,
-            detail=f"Unable to process billing file: {str(error)}",
+            detail=(
+                "Unable to process billing file: "
+                f"{str(error)}"
+            ),
         )
