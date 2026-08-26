@@ -2,18 +2,24 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers.billing import router as billing_router
-
 from app.routers.forecast import router as forecast_router
+from app.routers.recommendations import router as recommendations_router
 
 
 app = FastAPI(
     title="CloudSense AI API",
-    description="Backend API for cloud cost optimization and anomaly detection",
+    description=(
+        "Backend API for cloud cost optimization, "
+        "anomaly detection, forecasting, and recommendations"
+    ),
     version="1.0.0",
 )
 
 
-# Allow React frontend to communicate with FastAPI backend
+# --------------------------------------------------
+# CORS
+# --------------------------------------------------
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -26,12 +32,18 @@ app.add_middleware(
 )
 
 
-# Include Billing Router
+# --------------------------------------------------
+# Routers
+# --------------------------------------------------
+
 app.include_router(billing_router)
-
-# Include Forecast Router
 app.include_router(forecast_router)
+app.include_router(recommendations_router)
 
+
+# --------------------------------------------------
+# Basic routes
+# --------------------------------------------------
 
 @app.get("/")
 def root():

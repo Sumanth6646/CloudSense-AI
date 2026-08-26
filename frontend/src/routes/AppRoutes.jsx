@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "../pages/Dashboard/Dashboard";
 import BillingImport from "../pages/BillingImport/BillingImport";
+import Forecast from "../pages/Forecast/Forecast";
 
 function PlaceholderPage({ title, description }) {
   return (
@@ -20,7 +21,8 @@ function PlaceholderPage({ title, description }) {
         </p>
 
         <p className="mt-1 text-sm text-blue-600">
-          It will be connected to the CloudSense AI backend in the upcoming phases.
+          It will be connected to the CloudSense AI backend in the upcoming
+          phases.
         </p>
       </div>
     </div>
@@ -74,12 +76,7 @@ function AppRoutes() {
       {/* Cost Forecast */}
       <Route
         path="/forecast"
-        element={
-          <PlaceholderPage
-            title="Cost Forecast"
-            description="View predicted cloud spending and projected month-end costs."
-          />
-        }
+        element={<Forecast />}
       />
 
       {/* Recommendations */}
