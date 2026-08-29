@@ -9,11 +9,37 @@ function BillingImport() {
     totalCost,
   } = useBillingData();
 
+  /*
+   * Backend returns:
+   *
+   * {
+   *   status,
+   *   filename,
+   *   records,
+   *   total_cost,
+   *   provider_summary,
+   *   service_summary,
+   *   data: [...]
+   * }
+   *
+   * So billingData stores the complete backend response.
+   */
+
   const handleDataImported = (result) => {
     updateBillingData(result);
   };
 
   const records = billingData?.data || [];
+
+  const providerSummary =
+    billingData?.provider_summary || {};
+
+  const serviceSummary =
+    billingData?.service_summary || {};
+
+  const anomalyCount = records.filter(
+    (item) => item.prediction === -1
+  ).length;
 
   return (
     <Layout>
@@ -29,7 +55,7 @@ function BillingImport() {
         </p>
       </div>
 
-      {/* Upload */}
+      {/* Upload Section */}
       <BillingUpload
         onDataImported={handleDataImported}
       />
@@ -39,29 +65,59 @@ function BillingImport() {
         <div className="mt-8">
 
           {/* Summary Cards */}
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
 
-            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+            {/* Imported Records */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold text-slate-500">
                 Imported Records
               </p>
 
               <p className="mt-2 text-3xl font-bold text-slate-900">
-                {billingData.records}
+                {billingData?.records || records.length}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-400">
+                Billing records processed
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+            {/* Total Cost */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold text-slate-500">
-                Total Cost
+                Total Cloud Cost
               </p>
 
               <p className="mt-2 text-3xl font-bold text-blue-600">
-                ${Number(totalCost).toLocaleString()}
+                ${Number(
+                  billingData?.total_cost ?? totalCost
+                ).toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-400">
+                Total imported spending
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+            {/* Anomalies */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold text-slate-500">
+                Detected Anomalies
+              </p>
+
+              <p className="mt-2 text-3xl font-bold text-red-600">
+                {anomalyCount}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-400">
+                Detected by Isolation Forest
+              </p>
+            </div>
+
+            {/* Data Status */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold text-slate-500">
                 Data Status
               </p>
@@ -69,45 +125,115 @@ function BillingImport() {
               <p className="mt-2 text-3xl font-bold text-green-600">
                 Valid
               </p>
+
+              <p className="mt-1 text-xs text-slate-400">
+                Successfully processed
+              </p>
             </div>
 
           </div>
+
 
           {/* Provider Summary */}
-          <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
+          {Object.keys(providerSummary).length > 0 && (
+            <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
-            <h2 className="text-xl font-bold text-slate-900">
-              Cloud Provider Cost Analysis
-            </h2>
+              <div className="mb-5">
+                <h2 className="text-xl font-bold text-slate-900">
+                  Cloud Provider Cost Analysis
+                </h2>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
+                <p className="mt-1 text-sm text-slate-500">
+                  Total spending grouped by cloud provider.
+                </p>
+              </div>
 
-              {Object.entries(
-                billingData.provider_summary || {}
-              ).map(([provider, cost]) => (
+              <div className="grid gap-4 md:grid-cols-3">
 
-                <div
-                  key={provider}
-                  className="rounded-xl bg-slate-50 p-5"
-                >
-                  <p className="text-sm text-slate-500">
-                    {provider}
-                  </p>
+                {Object.entries(providerSummary).map(
+                  ([provider, cost]) => (
 
-                  <p className="mt-2 text-2xl font-bold text-slate-900">
-                    ${Number(cost).toLocaleString()}
-                  </p>
-                </div>
+                    <div
+                      key={provider}
+                      className="rounded-xl bg-slate-50 p-5"
+                    >
 
-              ))}
+                      <p className="text-sm font-medium text-slate-500">
+                        {provider}
+                      </p>
+
+                      <p className="mt-2 text-2xl font-bold text-slate-900">
+                        ${Number(cost).toLocaleString(
+                          undefined,
+                          {
+                            maximumFractionDigits: 2,
+                          }
+                        )}
+                      </p>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
 
             </div>
+          )}
 
-          </div>
+
+          {/* Service Summary */}
+          {Object.keys(serviceSummary).length > 0 && (
+            <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+              <div className="mb-5">
+                <h2 className="text-xl font-bold text-slate-900">
+                  Service Cost Analysis
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Total spending grouped by cloud service.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+                {Object.entries(serviceSummary).map(
+                  ([service, cost]) => (
+
+                    <div
+                      key={service}
+                      className="rounded-xl border border-slate-200 p-5 hover:bg-slate-50"
+                    >
+
+                      <p className="text-sm font-medium text-slate-500">
+                        {service}
+                      </p>
+
+                      <p className="mt-2 text-xl font-bold text-slate-900">
+                        ${Number(cost).toLocaleString(
+                          undefined,
+                          {
+                            maximumFractionDigits: 2,
+                          }
+                        )}
+                      </p>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
+
+            </div>
+          )}
+
 
           {/* Billing Records */}
-          <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200">
+          <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
+            {/* Table Header */}
             <div className="border-b border-slate-200 p-6">
 
               <h2 className="text-xl font-bold text-slate-900">
@@ -115,11 +241,14 @@ function BillingImport() {
               </h2>
 
               <p className="mt-1 text-sm text-slate-500">
-                Billing data processed by the CloudSense AI backend.
+                Billing data processed by the CloudSense AI
+                backend and analyzed using machine learning.
               </p>
 
             </div>
 
+
+            {/* Table */}
             <div className="overflow-x-auto">
 
               <table className="w-full text-left text-sm">
@@ -127,6 +256,7 @@ function BillingImport() {
                 <thead className="bg-slate-50">
 
                   <tr>
+
                     <th className="px-6 py-4 font-semibold text-slate-600">
                       Date
                     </th>
@@ -150,46 +280,98 @@ function BillingImport() {
                     <th className="px-6 py-4 font-semibold text-slate-600">
                       Cost
                     </th>
+
+                    <th className="px-6 py-4 font-semibold text-slate-600">
+                      Detection
+                    </th>
+
                   </tr>
 
                 </thead>
 
+
                 <tbody>
 
-                  {records.map((item, index) => (
+                  {records.map((item, index) => {
 
-                    <tr
-                      key={index}
-                      className="border-t border-slate-100 hover:bg-slate-50"
-                    >
+                    const isAnomaly =
+                      item.prediction === -1;
 
-                      <td className="px-6 py-4">
-                        {item.Date}
-                      </td>
+                    return (
+                      <tr
+                        key={index}
+                        className={`border-t border-slate-100 ${
+                          isAnomaly
+                            ? "bg-red-50/40"
+                            : "hover:bg-slate-50"
+                        }`}
+                      >
 
-                      <td className="px-6 py-4 font-medium">
-                        {item.Provider}
-                      </td>
+                        {/* Date */}
+                        <td className="px-6 py-4">
+                          {item.Date}
+                        </td>
 
-                      <td className="px-6 py-4">
-                        {item.Service}
-                      </td>
 
-                      <td className="px-6 py-4">
-                        {item.Region}
-                      </td>
+                        {/* Provider */}
+                        <td className="px-6 py-4 font-medium">
+                          {item.Provider}
+                        </td>
 
-                      <td className="px-6 py-4">
-                        {item.Usage} {item.Unit}
-                      </td>
 
-                      <td className="px-6 py-4 font-semibold">
-                        ${Number(item.Cost).toLocaleString()}
-                      </td>
+                        {/* Service */}
+                        <td className="px-6 py-4">
+                          {item.Service}
+                        </td>
 
-                    </tr>
 
-                  ))}
+                        {/* Region */}
+                        <td className="px-6 py-4">
+                          {item.Region}
+                        </td>
+
+
+                        {/* Usage */}
+                        <td className="px-6 py-4">
+                          {item.Usage} {item.Unit}
+                        </td>
+
+
+                        {/* Cost */}
+                        <td className="px-6 py-4 font-semibold">
+                          ${Number(
+                            item.Cost || 0
+                          ).toLocaleString(
+                            undefined,
+                            {
+                              maximumFractionDigits: 2,
+                            }
+                          )}
+                        </td>
+
+
+                        {/* Detection */}
+                        <td className="px-6 py-4">
+
+                          {isAnomaly ? (
+
+                            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                              Anomaly
+                            </span>
+
+                          ) : (
+
+                            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                              Normal
+                            </span>
+
+                          )}
+
+                        </td>
+
+                      </tr>
+                    );
+                  })}
 
                 </tbody>
 

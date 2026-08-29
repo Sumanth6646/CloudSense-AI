@@ -2,6 +2,8 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 import pandas as pd
 from io import BytesIO
 
+from app.ml.anomaly_detector import detect_anomalies
+
 
 router = APIRouter(
     prefix="/api/billing",
@@ -24,7 +26,10 @@ REQUIRED_COLUMNS = [
 async def upload_billing_file(
     file: UploadFile = File(...)
 ):
+    # ---------------------------------------------
     # Check file type
+    # ---------------------------------------------
+
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(
             status_code=400,
@@ -38,8 +43,14 @@ async def upload_billing_file(
 
         contents = await file.read()
 
+        if not contents:
+            raise HTTPException(
+                status_code=400,
+                detail="The uploaded file is empty.",
+            )
+
         # ---------------------------------------------
-        # Convert CSV into Pandas DataFrame
+        # Convert CSV to DataFrame
         # ---------------------------------------------
 
         dataframe = pd.read_csv(
@@ -66,7 +77,7 @@ async def upload_billing_file(
             )
 
         # ---------------------------------------------
-        # Convert Cost and Usage to numbers
+        # Clean numeric values
         # ---------------------------------------------
 
         dataframe["Cost"] = pd.to_numeric(
@@ -85,7 +96,13 @@ async def upload_billing_file(
 
         dataframe = dataframe.dropna(
             subset=["Cost", "Usage"]
-        )
+        ).copy()
+
+        if dataframe.empty:
+            raise HTTPException(
+                status_code=400,
+                detail="No valid billing records found.",
+            )
 
         # ---------------------------------------------
         # Calculate total cost
@@ -122,20 +139,43 @@ async def upload_billing_file(
         )
 
         # ---------------------------------------------
-        # Return processed billing data
+        # Run Isolation Forest
+        # ---------------------------------------------
+
+        billing_records = dataframe.to_dict(
+            orient="records"
+        )
+
+        anomalies = detect_anomalies(
+            billing_records
+        )
+
+        # ---------------------------------------------
+        # Return complete response
         # ---------------------------------------------
 
         return {
             "status": "success",
             "message": "Billing CSV processed successfully.",
             "filename": file.filename,
+
             "records": record_count,
+
             "total_cost": total_cost,
+
             "provider_summary": provider_summary,
+
             "service_summary": service_summary,
-            "data": dataframe.to_dict(
-                orient="records"
-            ),
+
+            # Original billing records
+            "data": billing_records,
+
+            # Isolation Forest results
+            "anomalies": anomalies,
+
+            "anomaly_count": len(anomalies),
+
+            "model": "Isolation Forest",
         }
 
     except HTTPException:

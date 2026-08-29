@@ -38,22 +38,45 @@ function BillingUpload({ onDataImported }) {
       if (!response.ok) {
         throw new Error(
           result.detail?.message ||
-          result.detail ||
-          "Unable to process billing file."
+            result.detail ||
+            "Unable to process billing file."
         );
       }
 
       if (result.status !== "success") {
         throw new Error(
-          result.message || "Billing file processing failed."
+          result.message ||
+            "Billing file processing failed."
         );
       }
 
-      onDataImported(result.data);
+      /*
+       * Send the complete backend response
+       * to the parent Billing Import page.
+       *
+       * The response contains:
+       *
+       * result.data       → billing records
+       * result.anomalies  → Isolation Forest results
+       */
+
+      onDataImported(result);
+
+      console.log(
+        "Billing import successful:",
+        result
+      );
 
     } catch (err) {
-      console.error("Billing upload error:", err);
-      setError(err.message || "Unable to connect to the backend.");
+      console.error(
+        "Billing upload error:",
+        err
+      );
+
+      setError(
+        err.message ||
+          "Unable to connect to the backend."
+      );
     } finally {
       setIsUploading(false);
     }
@@ -61,20 +84,27 @@ function BillingUpload({ onDataImported }) {
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
+
     processFile(file);
   };
 
   const handleDrop = (event) => {
     event.preventDefault();
+
     setIsDragging(false);
 
-    const file = event.dataTransfer.files?.[0];
+    const file =
+      event.dataTransfer.files?.[0];
+
     processFile(file);
   };
 
   return (
     <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-200">
+
       <div className="text-center">
+
+        {/* Upload Area */}
 
         <div
           className={`mx-auto flex max-w-2xl flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition ${
@@ -86,12 +116,14 @@ function BillingUpload({ onDataImported }) {
             event.preventDefault();
             setIsDragging(true);
           }}
-          onDragLeave={() => setIsDragging(false)}
+          onDragLeave={() =>
+            setIsDragging(false)
+          }
           onDrop={handleDrop}
         >
 
           <div className="mb-4 text-5xl">
-            📁
+            📄
           </div>
 
           <h2 className="text-xl font-bold text-slate-800">
@@ -102,6 +134,8 @@ function BillingUpload({ onDataImported }) {
             Upload your AWS, Azure, or Google Cloud billing CSV file.
           </p>
 
+          {/* Choose File */}
+
           <label
             className={`mt-6 cursor-pointer rounded-xl px-6 py-3 font-semibold text-white shadow-sm transition ${
               isUploading
@@ -109,7 +143,10 @@ function BillingUpload({ onDataImported }) {
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {isUploading ? "Analyzing..." : "Choose CSV File"}
+
+            {isUploading
+              ? "Analyzing..."
+              : "Choose CSV File"}
 
             <input
               type="file"
@@ -118,6 +155,7 @@ function BillingUpload({ onDataImported }) {
               onChange={handleFileChange}
               disabled={isUploading}
             />
+
           </label>
 
           <p className="mt-4 text-xs text-slate-400">
@@ -126,20 +164,27 @@ function BillingUpload({ onDataImported }) {
 
         </div>
 
-        {fileName && !error && (
+        {/* Success */}
+
+        {fileName && !error && !isUploading && (
           <div className="mx-auto mt-5 max-w-2xl rounded-xl border border-green-200 bg-green-50 p-4 text-left">
+
             <p className="font-semibold text-green-700">
-              ✓ File processed successfully
+              ✓ File imported successfully
             </p>
 
             <p className="mt-1 text-sm text-green-600">
               {fileName}
             </p>
+
           </div>
         )}
 
+        {/* Error */}
+
         {error && (
           <div className="mx-auto mt-5 max-w-2xl rounded-xl border border-red-200 bg-red-50 p-4 text-left">
+
             <p className="font-semibold text-red-700">
               Import failed
             </p>
@@ -147,6 +192,7 @@ function BillingUpload({ onDataImported }) {
             <p className="mt-1 text-sm text-red-600">
               {error}
             </p>
+
           </div>
         )}
 
