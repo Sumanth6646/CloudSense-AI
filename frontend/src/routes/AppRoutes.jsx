@@ -3,10 +3,14 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import BillingImport from "../pages/BillingImport/BillingImport";
 import Forecast from "../pages/Forecast/Forecast";
+import Anomalies from "../pages/Anomalies/Anomalies";
+import Analytics from "../pages/Analytics/Analytics";
+
 
 function PlaceholderPage({ title, description }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+
       <div className="mb-2 text-2xl font-bold text-slate-900">
         {title}
       </div>
@@ -16,70 +20,96 @@ function PlaceholderPage({ title, description }) {
       </p>
 
       <div className="mt-6 rounded-xl bg-blue-50 p-5">
+
         <p className="font-medium text-blue-700">
           This module is currently under development.
         </p>
 
         <p className="mt-1 text-sm text-blue-600">
-          It will be connected to the CloudSense AI backend in the upcoming
-          phases.
+          It will be connected to the CloudSense AI backend
+          in the upcoming phases.
         </p>
+
       </div>
+
     </div>
   );
 }
+
 
 function AppRoutes() {
   return (
     <Routes>
 
-      {/* Default Route */}
+      {/* ==================================================
+          Default Route
+      ================================================== */}
+
       <Route
         path="/"
-        element={<Navigate to="/dashboard" replace />}
+        element={
+          <Navigate
+            to="/dashboard"
+            replace
+          />
+        }
       />
 
-      {/* Dashboard */}
+
+      {/* ==================================================
+          Dashboard
+      ================================================== */}
+
       <Route
         path="/dashboard"
         element={<Dashboard />}
       />
 
-      {/* Billing Import */}
+
+      {/* ==================================================
+          Billing Import
+      ================================================== */}
+
       <Route
         path="/billing"
         element={<BillingImport />}
       />
 
-      {/* Analytics */}
+
+      {/* ==================================================
+          Analytics
+      ================================================== */}
+
       <Route
         path="/analytics"
-        element={
-          <PlaceholderPage
-            title="Cost Analytics"
-            description="Explore detailed cloud spending trends and service-level cost analytics."
-          />
-        }
+        element={<Analytics />}
       />
 
-      {/* Anomaly Detection */}
+
+      {/* ==================================================
+          Anomaly Detection
+      ================================================== */}
+
       <Route
         path="/anomalies"
-        element={
-          <PlaceholderPage
-            title="Anomaly Detection"
-            description="Identify unusual cloud spending patterns and investigate cost spikes."
-          />
-        }
+        element={<Anomalies />}
       />
 
-      {/* Cost Forecast */}
+
+      {/* ==================================================
+          Cost Forecast
+      ================================================== */}
+
       <Route
         path="/forecast"
         element={<Forecast />}
       />
 
-      {/* Recommendations */}
+
+      {/* ==================================================
+          Recommendations
+      ================================================== */}
+
       <Route
         path="/recommendations"
         element={
@@ -90,7 +120,11 @@ function AppRoutes() {
         }
       />
 
-      {/* Reports */}
+
+      {/* ==================================================
+          Reports
+      ================================================== */}
+
       <Route
         path="/reports"
         element={
@@ -101,7 +135,11 @@ function AppRoutes() {
         }
       />
 
-      {/* AI Assistant */}
+
+      {/* ==================================================
+          AI Assistant
+      ================================================== */}
+
       <Route
         path="/ai-assistant"
         element={
@@ -112,7 +150,11 @@ function AppRoutes() {
         }
       />
 
-      {/* Settings */}
+
+      {/* ==================================================
+          Settings
+      ================================================== */}
+
       <Route
         path="/settings"
         element={
@@ -123,14 +165,24 @@ function AppRoutes() {
         }
       />
 
-      {/* Unknown Routes */}
+
+      {/* ==================================================
+          Unknown Routes
+      ================================================== */}
+
       <Route
         path="*"
-        element={<Navigate to="/dashboard" replace />}
+        element={
+          <Navigate
+            to="/dashboard"
+            replace
+          />
+        }
       />
 
     </Routes>
   );
 }
+
 
 export default AppRoutes;
