@@ -5,7 +5,8 @@ import BillingImport from "../pages/BillingImport/BillingImport";
 import Forecast from "../pages/Forecast/Forecast";
 import Anomalies from "../pages/Anomalies/Anomalies";
 import Analytics from "../pages/Analytics/Analytics";
-
+import RecommendationsPage from "../pages/Recommendations/Recommendations";
+import Reports from "../pages/Reports/Reports";
 
 function PlaceholderPage({ title, description }) {
   return (
@@ -112,12 +113,7 @@ function AppRoutes() {
 
       <Route
         path="/recommendations"
-        element={
-          <PlaceholderPage
-            title="AI Recommendations"
-            description="Review AI-generated cloud cost optimization opportunities."
-          />
-        }
+        element={<RecommendationsPage />}
       />
 
 
@@ -127,12 +123,7 @@ function AppRoutes() {
 
       <Route
         path="/reports"
-        element={
-          <PlaceholderPage
-            title="Reports"
-            description="Generate and review cloud cost analysis reports."
-          />
-        }
+        element={<Reports />}
       />
 
 
