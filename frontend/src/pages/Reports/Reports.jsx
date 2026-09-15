@@ -4,6 +4,7 @@ import autoTable from "jspdf-autotable";
 
 import Layout from "../../components/layout/Layout";
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 function Reports() {
   const {
@@ -203,16 +204,6 @@ function Reports() {
    * --------------------------------------------------
    */
 
-  const formatCurrency = (value) => {
-    return (
-      "$" +
-      Number(value || 0).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    );
-  };
-
   const formatPercentage = (value) => {
     return `${Number(value || 0).toFixed(1)}%`;
   };
@@ -239,15 +230,7 @@ function Reports() {
       const generatedDate =
         new Date().toLocaleString();
 
-      const formatPdfCurrency = (value) => {
-        return (
-          "$" +
-          Number(value || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        );
-      };
+      const formatPdfCurrency = (value) => formatCurrency(value);
 
       /*
        * --------------------------------------------------
@@ -1438,3 +1421,4 @@ function Reports() {
 }
 
 export default Reports;
+

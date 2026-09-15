@@ -9,6 +9,7 @@ import {
 } from "recharts";
 
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 function LineChartCard() {
   const { billingData } = useBillingData();
@@ -68,7 +69,7 @@ function LineChartCard() {
             />
 
             <Tooltip
-              formatter={(value) => [`$${value}`, "Cost"]}
+              formatter={(value) => [formatCurrency(value), "Cost"]}
             />
 
             <Line

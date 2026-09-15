@@ -6,13 +6,13 @@ function Layout({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-col lg:ml-64">
         <Topbar
           onMenuClick={() => setMobileSidebarOpen(true)}
         />

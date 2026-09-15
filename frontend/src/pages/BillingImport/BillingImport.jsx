@@ -1,6 +1,7 @@
 import { useBillingData } from "../../context/BillingDataContext";
 import Layout from "../../components/layout/Layout";
 import BillingUpload from "../../components/upload/BillingUpload";
+import { formatCurrency } from "../../utils/currency";
 
 function BillingImport() {
   const {
@@ -89,11 +90,9 @@ function BillingImport() {
               </p>
 
               <p className="mt-2 text-3xl font-bold text-blue-600">
-                ${Number(
+                {formatCurrency(
                   billingData?.total_cost ?? totalCost
-                ).toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
+                )}
               </p>
 
               <p className="mt-1 text-xs text-slate-400">
@@ -163,12 +162,7 @@ function BillingImport() {
                       </p>
 
                       <p className="mt-2 text-2xl font-bold text-slate-900">
-                        ${Number(cost).toLocaleString(
-                          undefined,
-                          {
-                            maximumFractionDigits: 2,
-                          }
-                        )}
+                        {formatCurrency(cost)}
                       </p>
 
                     </div>
@@ -211,12 +205,7 @@ function BillingImport() {
                       </p>
 
                       <p className="mt-2 text-xl font-bold text-slate-900">
-                        ${Number(cost).toLocaleString(
-                          undefined,
-                          {
-                            maximumFractionDigits: 2,
-                          }
-                        )}
+                        {formatCurrency(cost)}
                       </p>
 
                     </div>
@@ -339,14 +328,7 @@ function BillingImport() {
 
                         {/* Cost */}
                         <td className="px-6 py-4 font-semibold">
-                          ${Number(
-                            item.Cost || 0
-                          ).toLocaleString(
-                            undefined,
-                            {
-                              maximumFractionDigits: 2,
-                            }
-                          )}
+                          {formatCurrency(item.Cost || 0)}
                         </td>
 
 
@@ -389,3 +371,4 @@ function BillingImport() {
 }
 
 export default BillingImport;
+

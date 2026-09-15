@@ -19,6 +19,7 @@ import {
 
 import Layout from "../../components/layout/Layout";
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 function Forecast() {
   const { billingData } = useBillingData();
@@ -103,18 +104,6 @@ function Forecast() {
 
     generateForecast();
   }, [billingData]);
-
-  const formatCurrency = (value) => {
-    const amount = Number(value || 0);
-
-    return (
-      "$" +
-      amount.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    );
-  };
 
   const trendPercentage = Number(
     forecastInfo?.trend_percentage || 0

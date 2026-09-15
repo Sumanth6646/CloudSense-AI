@@ -1,4 +1,13 @@
-import { createContext, useContext, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+} from "react";
+
+import {
+  formatCurrency,
+  getCurrency,
+} from "../utils/currency";
 
 const BillingDataContext = createContext(null);
 
@@ -7,38 +16,23 @@ export function BillingDataProvider({ children }) {
   const [billingInfo, setBillingInfo] = useState(null);
   const [anomalies, setAnomalies] = useState([]);
 
-  // --------------------------------------------------
-  // Recommendation State
-  // --------------------------------------------------
+  const [recommendations, setRecommendations] =
+    useState([]);
 
-  const [recommendations, setRecommendations] = useState([]);
   const [totalPotentialSavings, setTotalPotentialSavings] =
     useState(0);
 
-  // --------------------------------------------------
-  // Update Billing Data
-  // --------------------------------------------------
+  const [currency, setCurrencyState] = useState(
+    getCurrency()
+  );
 
   const updateBillingData = (result) => {
-    /*
-     * Backend returns something similar to:
-     *
-     * {
-     *   data: [...billing records],
-     *   anomalies: [...ML anomalies],
-     *   total_cost: ...,
-     * }
-     */
-
     if (Array.isArray(result)) {
       setBillingData(result);
       setBillingInfo(null);
       setAnomalies([]);
-
-      // Clear recommendations when raw data is supplied
       setRecommendations([]);
       setTotalPotentialSavings(0);
-
       return;
     }
 
@@ -56,11 +50,6 @@ export function BillingDataProvider({ children }) {
         : []
     );
 
-    /*
-     * If the backend already provides recommendations,
-     * store them here.
-     */
-
     setRecommendations(
       Array.isArray(result?.recommendations)
         ? result.recommendations
@@ -73,10 +62,6 @@ export function BillingDataProvider({ children }) {
       )
     );
   };
-
-  // --------------------------------------------------
-  // Update Recommendations
-  // --------------------------------------------------
 
   const updateRecommendations = (result) => {
     if (!result) {
@@ -98,22 +83,22 @@ export function BillingDataProvider({ children }) {
     );
   };
 
-  // --------------------------------------------------
-  // Clear All Billing Data
-  // --------------------------------------------------
+  const updateCurrency = (newCurrency) => {
+    localStorage.setItem(
+      "cloudsense_currency",
+      newCurrency
+    );
+
+    setCurrencyState(newCurrency);
+  };
 
   const clearBillingData = () => {
     setBillingData([]);
     setBillingInfo(null);
     setAnomalies([]);
-
     setRecommendations([]);
     setTotalPotentialSavings(0);
   };
-
-  // --------------------------------------------------
-  // Calculate Total Cost
-  // --------------------------------------------------
 
   const totalCost = billingData.reduce(
     (total, item) =>
@@ -121,26 +106,27 @@ export function BillingDataProvider({ children }) {
     0
   );
 
-  // --------------------------------------------------
-  // Context Provider
-  // --------------------------------------------------
-
   return (
     <BillingDataContext.Provider
       value={{
-        // Billing
         billingData,
         billingInfo,
         totalCost,
-
-        // Anomalies
         anomalies,
-
-        // Recommendations
         recommendations,
         totalPotentialSavings,
 
-        // Functions
+        currency,
+
+        formatCurrency: (value, options = {}) =>
+          formatCurrency(
+            value,
+            currency,
+            options
+          ),
+
+        updateCurrency,
+
         updateBillingData,
         updateRecommendations,
         clearBillingData,
@@ -151,14 +137,9 @@ export function BillingDataProvider({ children }) {
   );
 }
 
-// --------------------------------------------------
-// Custom Hook
-// --------------------------------------------------
-
 export function useBillingData() {
-  const context = useContext(
-    BillingDataContext
-  );
+  const context =
+    useContext(BillingDataContext);
 
   if (!context) {
     throw new Error(

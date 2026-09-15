@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { formatCurrency } from "../../utils/currency";
 
 function BillingInsights({ billingData }) {
   const analysis = useMemo(() => {
@@ -110,7 +111,7 @@ function BillingInsights({ billingData }) {
           </p>
 
           <p className="mt-3 text-3xl font-bold text-blue-600">
-            ${analysis.totalCost.toLocaleString()}
+            ${formatCurrency(analysis.totalCost)}
           </p>
 
           <p className="mt-2 text-sm text-slate-500">
@@ -125,7 +126,7 @@ function BillingInsights({ billingData }) {
           </p>
 
           <p className="mt-3 text-3xl font-bold text-green-600">
-            ${analysis.averageCost.toFixed(2)}
+            ${formatCurrency(analysis.averageCost)}
           </p>
 
           <p className="mt-2 text-sm text-slate-500">
@@ -144,7 +145,7 @@ function BillingInsights({ billingData }) {
           </p>
 
           <p className="mt-2 text-sm text-slate-500">
-            ${analysis.highestServiceCost.toLocaleString()} total spending
+            ${formatCurrency(analysis.highestServiceCost)} total spending
           </p>
         </div>
 
@@ -159,7 +160,7 @@ function BillingInsights({ billingData }) {
           </p>
 
           <p className="mt-2 text-sm text-slate-500">
-            ${analysis.highestDayCost.toLocaleString()} spending
+            ${formatCurrency(analysis.highestDayCost)} spending
           </p>
         </div>
       </div>
@@ -191,7 +192,7 @@ function BillingInsights({ billingData }) {
                     </span>
 
                     <span className="font-semibold text-slate-900">
-                      ${cost.toLocaleString()}
+                      ${formatCurrency(cost)}
                     </span>
                   </div>
 
@@ -269,7 +270,7 @@ function BillingInsights({ billingData }) {
                   </div>
 
                   <p className="font-bold text-slate-900">
-                    ${cost.toLocaleString()}
+                    ${formatCurrency(cost)}
                   </p>
                 </div>
               );
@@ -293,7 +294,7 @@ function BillingInsights({ billingData }) {
             <p className="mt-2 text-sm leading-6 text-yellow-700">
               {analysis.highestService} is currently the highest-cost
               service in the imported billing data, with total spending
-              of ${analysis.highestServiceCost.toLocaleString()}.
+              of ${formatCurrency(analysis.highestServiceCost)}.
               This service should be reviewed for possible
               optimization opportunities.
             </p>
@@ -305,3 +306,4 @@ function BillingInsights({ billingData }) {
 }
 
 export default BillingInsights;
+

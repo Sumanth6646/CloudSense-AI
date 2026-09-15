@@ -8,6 +8,7 @@ import {
 
 import Layout from "../../components/layout/Layout";
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 function Anomalies() {
   const {
@@ -540,10 +541,11 @@ function Anomalies() {
                         {/* Cost */}
 
                         <td className="whitespace-nowrap px-6 py-4 font-bold text-slate-900">
-                          $
-                          {Number(
-                            item.Cost || 0
-                          ).toLocaleString()}
+                          {formatCurrency(
+                            item.Cost || 0,
+                            undefined,
+                            { maximumFractionDigits: 0 }
+                          )}
                         </td>
 
 

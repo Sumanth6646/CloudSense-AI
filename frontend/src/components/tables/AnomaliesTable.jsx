@@ -1,4 +1,5 @@
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 function AnomaliesTable() {
   const {
@@ -171,10 +172,11 @@ function AnomaliesTable() {
                   </td>
 
                   <td className="px-6 py-4 font-semibold">
-                    $
-                    {Number(
-                      item.Cost || 0
-                    ).toLocaleString()}
+                    {formatCurrency(
+                      item.Cost || 0,
+                      undefined,
+                      { maximumFractionDigits: 0 }
+                    )}
                   </td>
 
                   <td className="px-6 py-4">

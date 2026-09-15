@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 function Recommendations() {
   const { billingData } = useBillingData();
@@ -198,7 +199,7 @@ function Recommendations() {
           </p>
 
           <p className="text-sm font-bold text-emerald-700">
-            ${totalSavings.toLocaleString()}/month
+            ${formatCurrency(totalSavings, undefined, { maximumFractionDigits: 0 })}/month
           </p>
 
         </div>
@@ -340,10 +341,11 @@ function Recommendations() {
                     {/* Savings */}
 
                     <span className="text-sm font-bold text-emerald-600">
-                      +$
-                      {Number(
-                        item.savings || 0
-                      ).toLocaleString()}
+                      +{formatCurrency(
+                        item.savings || 0,
+                        undefined,
+                        { maximumFractionDigits: 0 }
+                      )}
                       /mo
                     </span>
 
@@ -377,3 +379,4 @@ function Recommendations() {
 }
 
 export default Recommendations;
+

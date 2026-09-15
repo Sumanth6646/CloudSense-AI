@@ -4,10 +4,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import {
-  budgetData,
-  currencySymbol,
-} from "../../data/costdata";
+import { budgetData } from "../../data/costdata";
+import { formatCurrency } from "../../utils/currency";
 
 function BudgetStatus() {
   const percentage =
@@ -49,13 +47,19 @@ function BudgetStatus() {
         <div className="mb-2 flex items-end justify-between">
           <div>
             <p className="text-2xl font-bold text-slate-900">
-              {currencySymbol}
-              {budgetData.spent.toLocaleString()}
+              {formatCurrency(
+                budgetData.spent,
+                undefined,
+                { maximumFractionDigits: 0 }
+              )}
             </p>
 
             <p className="mt-1 text-xs text-slate-500">
-              of {currencySymbol}
-              {budgetData.budget.toLocaleString()} budget
+              of {formatCurrency(
+                budgetData.budget,
+                undefined,
+                { maximumFractionDigits: 0 }
+              )} budget
             </p>
           </div>
 
@@ -100,8 +104,11 @@ function BudgetStatus() {
           </div>
 
           <span className="text-sm font-bold text-slate-800">
-            {currencySymbol}
-            {remaining.toLocaleString()}
+            {formatCurrency(
+              remaining,
+              undefined,
+              { maximumFractionDigits: 0 }
+            )}
           </span>
         </div>
       </div>
@@ -110,3 +117,4 @@ function BudgetStatus() {
 }
 
 export default BudgetStatus;
+

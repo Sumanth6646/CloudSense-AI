@@ -7,6 +7,7 @@ import AIInsights from "../../components/insights/AIInsights";
 import AnomaliesTable from "../../components/tables/AnomaliesTable";
 import Recommendations from "../../components/recommendations/Recommendations";
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 function Dashboard() {
   const {
@@ -80,7 +81,11 @@ function Dashboard() {
 
         <DashboardCard
           title="Total Cloud Cost"
-          value={`$${totalCost.toLocaleString()}`}
+          value={formatCurrency(
+            totalCost,
+            undefined,
+            { maximumFractionDigits: 0 }
+          )}
           colour="#2563EB"
         />
 
@@ -106,12 +111,11 @@ function Dashboard() {
 
         <DashboardCard
           title="Potential Savings"
-          value={`$${estimatedSavings.toLocaleString(
+          value={formatCurrency(
+            estimatedSavings,
             undefined,
-            {
-              maximumFractionDigits: 0,
-            }
-          )}`}
+            { maximumFractionDigits: 0,}
+          )}
           colour="#F59E0B"
         />
 

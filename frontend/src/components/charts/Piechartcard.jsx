@@ -8,6 +8,7 @@ import {
 } from "recharts";
 
 import { useBillingData } from "../../context/BillingDataContext";
+import { formatCurrency } from "../../utils/currency";
 
 const colours = [
   "#2563EB",
@@ -90,7 +91,7 @@ function PieChartCard() {
             </Pie>
 
             <Tooltip
-              formatter={(value) => [`$${value}`, "Cost"]}
+              formatter={(value) => [formatCurrency(value), "Cost"]}
             />
 
             <Legend />
@@ -104,3 +105,4 @@ function PieChartCard() {
 }
 
 export default PieChartCard;
+
