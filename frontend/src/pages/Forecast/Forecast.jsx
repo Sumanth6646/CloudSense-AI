@@ -20,6 +20,7 @@ import {
 import Layout from "../../components/layout/Layout";
 import { useBillingData } from "../../context/BillingDataContext";
 import { formatCurrency } from "../../utils/currency";
+import API_BASE_URL from "../../config/api";
 
 function Forecast() {
   const { billingData } = useBillingData();
@@ -44,7 +45,7 @@ function Forecast() {
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/forecast/predict",
+          `${API_BASE_URL}/api/forecast/predict`,
           {
             method: "POST",
             headers: {

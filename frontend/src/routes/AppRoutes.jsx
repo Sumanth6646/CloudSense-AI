@@ -14,6 +14,7 @@ import RecommendationsPage from "../pages/Recommendations/Recommendations";
 import Reports from "../pages/Reports/Reports";
 
 import { useBillingData } from "../context/BillingDataContext";
+import API_BASE_URL from "../config/api";
 
 /* =========================================================
    AI ASSISTANT
@@ -553,7 +554,7 @@ function SettingsPage() {
     try {
       const response =
         await fetch(
-          "http://127.0.0.1:8000/health"
+          `${API_BASE_URL}/health`
         );
 
       if (!response.ok) {

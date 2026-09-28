@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_BASE_URL from "../../config/api";
 
 function BillingUpload({ onDataImported }) {
   const [fileName, setFileName] = useState("");
@@ -26,7 +27,7 @@ function BillingUpload({ onDataImported }) {
       formData.append("file", file);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/billing/upload",
+        `${API_BASE_URL}/api/billing/upload`,
         {
           method: "POST",
           body: formData,

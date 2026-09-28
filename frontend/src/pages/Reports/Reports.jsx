@@ -5,6 +5,7 @@ import autoTable from "jspdf-autotable";
 import Layout from "../../components/layout/Layout";
 import { useBillingData } from "../../context/BillingDataContext";
 import { formatCurrency } from "../../utils/currency";
+import API_BASE_URL from "../../config/api";
 
 function Reports() {
   const {
@@ -129,7 +130,7 @@ function Reports() {
          */
 
         const recommendationResponse = await fetch(
-          "http://127.0.0.1:8000/api/recommendations/generate",
+          `${API_BASE_URL}/api/recommendations/generate`,
           {
             method: "POST",
             headers: {

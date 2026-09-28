@@ -8,6 +8,7 @@ import {
 
 import { useBillingData } from "../../context/BillingDataContext";
 import { formatCurrency } from "../../utils/currency";
+import API_BASE_URL from "../../config/api";
 
 function Recommendations() {
   const { billingData } = useBillingData();
@@ -39,7 +40,7 @@ function Recommendations() {
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/recommendations/generate",
+          `${API_BASE_URL}/api/recommendations/generate`,
           {
             method: "POST",
 
