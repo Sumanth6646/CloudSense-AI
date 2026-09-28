@@ -1,0 +1,12 @@
+backend/venv/
+backend/venv312/
+
+__pycache__/
+*.py[cod]
+*.pyd
+
+frontend/node_modules/
+frontend/dist/
+
+.env
+.env.*
